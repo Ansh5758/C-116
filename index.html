@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Filter</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script>
+    <script src="https://unpkg.com/ml5@0.4.3/dist/ml5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@500&family=DynaPuff&family=Lobster&family=Pacifico&family=Ramaraja&family=Satisfy&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: aliceblue;
+            color: rgb(237, 161, 175);
+            font-family: 'DynaPuff', cursive;
+        }
+        h1{
+            font-size: 40px;
+        }
+        hr{
+            background-color: rgb(237, 161, 175);
+            height: 1.5px;
+            width: 99%;
+        }
+        #cameraBTN{
+            padding: 5px 13px;
+            font-size: 35px;
+            border: 2px solid rgb(237, 161, 175);
+            background-color: aliceblue;
+            box-shadow: 0px 0px 7.5px gray;
+            border-radius: 100%;
+            transition: 0.3s all ease-in-out;
+        }
+        #cameraBTN:active{
+            background-color: rgb(215, 222, 229);
+        }
+        #cameraBTN:hover{
+            box-shadow: 0px 0px 12px rgb(76, 76, 76);
+            transform: translateY(5px);
+        }
+        canvas{
+            border: 2.5px solid rgb(237, 161, 175);
+            animation: shadow 3s infinite;
+        }
+        @keyframes shadow {
+            0%, 100%{
+                box-shadow: 0px 0px 25px rgb(160, 160, 160);;
+            }
+            50%{
+                box-shadow: 0px 0px 25px black;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>Realtime Filter</h1>
+        <hr>
+        <button id="cameraBTN" onclick="takeSnap()">📷</button>
+    </center>
+    <script>
+        var noseX = 0;
+        var noseY = 0;
+        function preload(){
+            clownNose = loadImage('clownNose.png');
+        }
+        function setup(){
+            canvas = createCanvas(450, 320);
+            canvas.position(494.5, 200);
+            video = createCapture(VIDEO);
+            video.hide();
+            poseNet = ml5.poseNet(video, modelLoaded);
+            poseNet.on('pose', getResult);
+        }
+        function getResult(results){
+            if (results.length > 0){
+                console.log(results);
+                noseX = results[0].pose.nose.x;
+                noseY = results[0].pose.nose.y;
+            }
+        }
+        function modelLoaded(){
+            console.log('model is loaded.');
+        }
+        function draw(){
+            image(video, 0, 0, 450, 320);
+            fill(255, 0, 0);
+            stroke(255, 0, 0);
+            circle(noseX, noseY, 25);
+        }
+        function takeSnap(){
+            save('filteredImage.png');
+        }
+    </script>
+</body>
+
+</html>
